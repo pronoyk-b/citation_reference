@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Citation Format Generator</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Citation Format Generator</h1>
+        <div class="citation-form">
+            <div class="authors-section">
+                <div class="website-toggle">
+                    <input type="checkbox" id="website-only" name="website-only">
+                    <label for="website-only">No author (Website only)</label>
+                </div>
+                <div id="authors-container">
+                    <div class="author-input">
+                        <input type="text" class="author-name" placeholder="Enter author name">
+                    </div>
+                </div>
+                <button type="button" id="add-author">+ Add Another Author</button>
+            </div>
+
+            <div class="form-group">
+                <input type="text" id="publication-year" placeholder="Publication Year">
+            </div>
+
+            <div class="form-group">
+                <input type="text" id="article-title" placeholder="Article Title">
+            </div>
+
+            <div class="form-group">
+                <input type="url" id="article-url" placeholder="Article URL">
+            </div>
+
+            <button type="button" id="generate-citation">Generate Citation</button>
+        </div>
+
+        <div class="citation-result">
+            <h2>Generated Citation</h2>
+            <div id="citation-output"></div>
+            <button type="button" id="copy-citation">Copy Citation</button>
+        </div>
+
+        <div class="citation-result">
+            <h2>Reference Format</h2>
+            <div id="reference-output"></div>
+            <button type="button" id="copy-reference">Copy Reference</button>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
