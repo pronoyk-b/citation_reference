@@ -96,44 +96,47 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     // Generate citation
-    generateButton.addEventListener('click', () => {
-        const url = document.getElementById('article-url').value;
-        const year = document.getElementById('publication-year').value;
-        const title = document.getElementById('article-title').value;
-        const currentDate = new Date();
-        let authorsString = '';
-        let referenceString = '';
+    generateButton.addEventListener('click', function() {
+        const citationStyle = document.querySelector('input[name="citation-style"]:checked').value;
+        const authors = Array.from(document.querySelectorAll('.author-name')).map(input => input.value).filter(name => name);
+        const publicationYear = document.getElementById('publication-year').value;
+        const articleTitle = document.getElementById('article-title').value;
+        const articleUrl = document.getElementById('article-url').value;
+
+        let citationOutputText = '';
+        let referenceOutputText = '';
 
         if (websiteOnlyCheckbox.checked) {
-            // Website-only format
-            const websiteName = getWebsiteName(url);
-            authorsString = websiteName;
-            referenceString = `(${websiteName}, ${year})`;
-        } else {
-            // Regular author format
-            const authorInputs = document.querySelectorAll('.author-name');
-            const authors = Array.from(authorInputs)
-                .map(input => input.value.trim())
-                .filter(name => name !== '')
-                .map(name => formatAuthorName(name));
-
-            if (authors.length === 1) {
-                authorsString = authors[0];
-                referenceString = `(${authors[0].split(',')[0]}, ${year})`;
-            } else if (authors.length >= 2) {
-                authorsString = authors.slice(0, -1).join(', ') + ' and ' + authors[authors.length - 1];
-                referenceString = `(${authors[0].split(',')[0]} <i>et al.</i> ${year})`;
-            }
+            const domainName = articleUrl.replace(/^https?:\/\//, '').replace(/^www\./, '').split('/')[0];
+            const capitalizedDomain = domainName.charAt(0).toUpperCase() + domainName.slice(1);
+            citationOutputText = `${capitalizedDomain} (${publicationYear}) <i>${articleTitle}</i> Retrieved from: ${articleUrl} [Accessed on ${formatDate(new Date())}]`;
+            referenceOutputText = `(${capitalizedDomain}, ${publicationYear})`;
+        } else if (citationStyle === 'apa') {
+            // APA citation format
+            const formattedAuthors = authors.map(formatAuthorName).join(', ');
+            citationOutputText = `${formattedAuthors} (${publicationYear}). <i>${articleTitle}</i>. Retrieved from: ${articleUrl} [Accessed on ${formatDate(new Date())}]`;
+        } else if (citationStyle === 'harvard') {
+            // Harvard citation format
+            const formattedAuthors = authors.map(formatAuthorName).join(', ');
+            citationOutputText = `${formattedAuthors} (${publicationYear}). ${articleTitle}. Available at: ${articleUrl} (Accessed: ${formatDate(new Date())})`;
         }
 
-        // Generate full citation
-        const citation = `${authorsString} (${year}) <i>${title}</i> Available at: ${url} [Accessed on ${formatDate(currentDate)}]`;
-        citationOutput.innerHTML = citation;
+        const lastName = (fullName) => {
+            const parts = fullName.split(',');
+            return parts.length > 1 ? parts[0].trim() : fullName.trim().split(' ').pop();
+        };
 
-        // Set reference format
-        if (authorsString) {
-            referenceOutput.innerHTML = referenceString;
+        if (authors.length === 1) {
+            referenceOutputText = `(${lastName(authors[0])}, ${publicationYear})`;
+        } else if (authors.length === 2) {
+            const sortedAuthors = authors.map(lastName).sort();
+            referenceOutputText = `(${sortedAuthors.join(' and ')}, ${publicationYear})`;
+        } else if (authors.length > 2) {
+            referenceOutputText = `(${lastName(authors[0])} <i>et al.</i>, ${publicationYear})`;
         }
+
+        citationOutput.innerHTML = citationOutputText;
+        referenceOutput.innerHTML = referenceOutputText;
     });
 
     // Copy citation
@@ -163,6 +166,19 @@ document.addEventListener('DOMContentLoaded', function() {
             setTimeout(() => {
                 copyReferenceButton.textContent = originalText;
             }, 2000);
+        });
+    });
+
+    // Remove DOI input field functionality
+    const citationStyleRadios = document.querySelectorAll('input[name="citation-style"]');
+
+    citationStyleRadios.forEach(radio => {
+        radio.addEventListener('change', function() {
+            // No DOI input field needed for APA style
+            const doiField = document.getElementById('doi-link');
+            if (doiField) {
+                doiField.parentElement.remove();
+            }
         });
     });
 });
